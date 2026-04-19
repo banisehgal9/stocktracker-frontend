@@ -17,6 +17,7 @@ export default function Discover({ session, watchlist, addStock }) {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
   const [addedSymbols, setAddedSymbols] = useState(new Set());
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   useEffect(() => {
     fetchDiscover();
@@ -30,8 +31,12 @@ export default function Discover({ session, watchlist, addStock }) {
       });
       if (res.ok) {
         const data = await res.json();
-        setRecommendations(data.recommendations || []);
-        setBreakdown(data.portfolio_breakdown || {});
+        if (data.needs_onboarding) {
+          setNeedsOnboarding(true);
+        } else {
+          setRecommendations(data.recommendations || []);
+          setBreakdown(data.portfolio_breakdown || {});
+        }
       }
     } catch (err) {
       console.error("Failed to fetch discover:", err);
@@ -86,6 +91,10 @@ export default function Discover({ session, watchlist, addStock }) {
           <div className="discover-loading">
             <div className="loading-spinner" />
             <p>Finding stocks for you...</p>
+          </div>
+        ) : needsOnboarding ? (
+          <div className="empty-state discover-onboarding-msg">
+            <p>Add some stocks to your watchlist first &mdash; Discover recommendations are based on what you hold.</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="empty-state">

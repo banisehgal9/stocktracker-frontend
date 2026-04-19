@@ -97,6 +97,29 @@ export default function Dashboard({ session, watchlist, addStock, removeStock, u
 
   const currentCurrency = CURRENCIES.find((c) => c.code === watchlist.currency) || CURRENCIES[0];
 
+  if (watchlist.symbols.length === 0) {
+    return (
+      <div className="dashboard">
+        <div className="onboarding-screen">
+          <div className="onboarding-icon">📈</div>
+          <h1 className="onboarding-title">Welcome to StockTracker</h1>
+          <p className="onboarding-subtitle">Add your first stocks to get started.</p>
+          <button className="btn-onboarding-add" onClick={() => setShowAddModal(true)}>
+            + Add Stock
+          </button>
+        </div>
+
+        {showAddModal && (
+          <AddStockModal
+            onAdd={handleAddStock}
+            onClose={() => setShowAddModal(false)}
+            existingSymbols={watchlist.symbols}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard">
       {/* Controls bar */}
@@ -134,25 +157,16 @@ export default function Dashboard({ session, watchlist, addStock, removeStock, u
 
       {/* Stock cards */}
       <div className="cards-container">
-        {watchlist.symbols.length === 0 ? (
-          <div className="empty-state">
-            <p>No stocks in your watchlist yet.</p>
-            <button className="btn-add" onClick={() => setShowAddModal(true)}>
-              + Add your first stock
-            </button>
-          </div>
-        ) : (
-          watchlist.symbols.map((symbol) => (
-            <StockCard
-              key={symbol}
-              symbol={symbol}
-              data={stockData[symbol]}
-              currency={watchlist.currency}
-              fxRates={fxRates}
-              onRemove={() => handleRemoveStock(symbol)}
-            />
-          ))
-        )}
+        {watchlist.symbols.map((symbol) => (
+          <StockCard
+            key={symbol}
+            symbol={symbol}
+            data={stockData[symbol]}
+            currency={watchlist.currency}
+            fxRates={fxRates}
+            onRemove={() => handleRemoveStock(symbol)}
+          />
+        ))}
       </div>
 
       {/* Add stock modal */}
